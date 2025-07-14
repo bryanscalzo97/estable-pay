@@ -2,6 +2,11 @@
 
 A modern, modular, and high-performance React Native app for managing invoices.
 
+## Demo
+
+https://github.com/user-attachments/assets/8aa3ee32-e92d-4d09-bd6e-94ff75523e97
+
+
 ## Features
 
 - Invoice listing with filters (status, crypto)
