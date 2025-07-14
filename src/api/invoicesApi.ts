@@ -33,14 +33,23 @@ type InvoicesResponse = {
   };
 };
 
-// Function to fetch invoices
-const getInvoices = async (page: number = 1): Promise<InvoicesResponse> => {
+type GetInvoicesParams = {
+  pageSize?: number;
+  status?: string[];
+  crypto?: string[];
+};
+
+// Function to fetch invoices with dynamic filters
+const getInvoices = async (
+  page: number = 1,
+  { pageSize = 5, status, crypto }: GetInvoicesParams = {}
+): Promise<InvoicesResponse> => {
   try {
     const response = await axiosInstance.post('/invoices', {
       page,
-      pageSize: 5,
-      status: ['COMPLETED'],
-      crypto: ['USDT-ETH'],
+      pageSize,
+      status,
+      crypto,
     });
     return response.data;
   } catch (error) {
@@ -49,12 +58,13 @@ const getInvoices = async (page: number = 1): Promise<InvoicesResponse> => {
   }
 };
 
-// Hook with infinite query
-export const useGetInvoicesInfinite = (params?: { pageSize?: number }) => {
+// Hook with infinite query and dynamic filters
+export const useGetInvoicesInfinite = (params: GetInvoicesParams = {}) => {
   return useInfiniteQuery({
     queryKey: ['invoices', 'infinite', params],
     queryFn: async ({ pageParam = 0 }) => {
-      const response = await getInvoices(pageParam + 1);
+      const page = pageParam + 1;
+      const response = await getInvoices(page, params);
       return {
         invoices: response.data.items,
         nextPage:

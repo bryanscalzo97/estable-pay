@@ -8,10 +8,21 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
+  TouchableOpacity,
 } from 'react-native';
 import { useGetInvoicesInfinite } from '../api/invoicesApi';
+import { FilterModal } from '../components/FilterModal';
 
 const HomeScreen: React.FC = () => {
+  const [filterModalVisible, setFilterModalVisible] = React.useState(false);
+  const [filters, setFilters] = React.useState<{
+    status: string[];
+    crypto: string[];
+  }>({
+    status: [],
+    crypto: [],
+  });
+
   const {
     data,
     fetchNextPage,
@@ -21,7 +32,11 @@ const HomeScreen: React.FC = () => {
     isError,
     error,
     refetch,
-  } = useGetInvoicesInfinite();
+  } = useGetInvoicesInfinite({
+    pageSize: 5,
+    status: filters.status,
+    crypto: filters.crypto,
+  });
 
   const allInvoices = data?.pages.flatMap((page) => page.invoices) ?? [];
 
@@ -86,6 +101,12 @@ const HomeScreen: React.FC = () => {
         <Text style={styles.title}>Estable Pay</Text>
         <Text style={styles.subtitle}>Invoice Management</Text>
       </View>
+      <TouchableOpacity
+        style={styles.filterButton}
+        onPress={() => setFilterModalVisible(true)}
+      >
+        <Text style={styles.filterButtonText}>Filters</Text>
+      </TouchableOpacity>
       <FlatList
         data={allInvoices}
         renderItem={renderInvoice}
@@ -104,6 +125,13 @@ const HomeScreen: React.FC = () => {
           ) : null
         }
         contentContainerStyle={styles.listContainer}
+      />
+      <FilterModal
+        visible={filterModalVisible}
+        onClose={() => setFilterModalVisible(false)}
+        onApply={(newFilters) => setFilters(newFilters)}
+        initialStatus={filters.status}
+        initialCrypto={filters.crypto}
       />
     </SafeAreaView>
   );
@@ -129,6 +157,17 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: '#6c757d',
+  },
+  filterButton: {
+    alignSelf: 'flex-end',
+    margin: 16,
+    backgroundColor: '#007AFF',
+    padding: 10,
+    borderRadius: 8,
+  },
+  filterButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
   listContainer: {
     padding: 16,
