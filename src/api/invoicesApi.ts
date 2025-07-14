@@ -79,7 +79,7 @@ export const useGetInvoicesInfinite = (params: GetInvoicesParams = {}) => {
     getNextPageParam: (lastPage) => lastPage.nextPage,
     initialPageParam: 0,
     getPreviousPageParam: (firstPage) => firstPage.currentPage - 1,
-    refetchInterval: 300000, // Poll every 5 minutes
+    refetchInterval: 5000, // Poll every 5 seconds
     staleTime: 0, // Always consider data stale for polling
     retry: 2, // Retry 2 times if the request fails
   });

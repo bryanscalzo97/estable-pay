@@ -20,7 +20,7 @@ type InvoiceCardProps = {
   invoice: Invoice;
 };
 
-export const InvoiceCard: React.FC<InvoiceCardProps> = ({ invoice }) => {
+const InvoiceCardComponent: React.FC<InvoiceCardProps> = ({ invoice }) => {
   const statusColor = getInvoiceStatusColor(invoice.status);
   const statusIcon = getInvoiceStatusIcon(invoice.status, statusColor);
   const statusLabel = getInvoiceStatusLabel(invoice.status);
@@ -55,6 +55,8 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({ invoice }) => {
     </View>
   );
 };
+
+export const InvoiceCard = React.memo(InvoiceCardComponent);
 
 const styles = StyleSheet.create({
   invoiceItem: {
