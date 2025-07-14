@@ -13,14 +13,17 @@ import { useGetInvoicesInfinite } from '../api/invoicesApi';
 import { FilterModal } from '../components/FilterModal';
 import { Header } from '../components/Header';
 
+const STATUS_OPTIONS = ['CREATED', 'PENDING', 'COMPLETED', 'EXPIRED'];
+const CRYPTO_OPTIONS = ['USDT-TRX', 'USDT-ETH', 'ETH', 'TRX'];
+
 const HomeScreen: React.FC = () => {
   const [filterModalVisible, setFilterModalVisible] = React.useState(false);
   const [filters, setFilters] = React.useState<{
     status: string[];
     crypto: string[];
   }>({
-    status: [],
-    crypto: [],
+    status: STATUS_OPTIONS,
+    crypto: CRYPTO_OPTIONS,
   });
 
   const {

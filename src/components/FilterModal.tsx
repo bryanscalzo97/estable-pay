@@ -24,8 +24,8 @@ export const FilterModal: React.FC<FilterModalProps> = ({
   visible,
   onClose,
   onApply,
-  initialStatus = [],
-  initialCrypto = [],
+  initialStatus = STATUS_OPTIONS,
+  initialCrypto = CRYPTO_OPTIONS,
 }) => {
   const [selectedStatus, setSelectedStatus] = useState<string[]>(initialStatus);
   const [selectedCrypto, setSelectedCrypto] = useState<string[]>(initialCrypto);
