@@ -8,10 +8,10 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
 } from 'react-native';
 import { useGetInvoicesInfinite } from '../api/invoicesApi';
 import { FilterModal } from '../components/FilterModal';
+import { Header } from '../components/Header';
 
 const HomeScreen: React.FC = () => {
   const [filterModalVisible, setFilterModalVisible] = React.useState(false);
@@ -65,13 +65,10 @@ const HomeScreen: React.FC = () => {
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-        <View style={styles.header}>
-          <Text style={styles.title}>Estable Pay</Text>
-          <Text style={styles.subtitle}>Invoice Management</Text>
-        </View>
+        <StatusBar barStyle="light-content" backgroundColor="#181A20" />
+        <Header onFilterPress={() => setFilterModalVisible(true)} />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
+          <ActivityIndicator size="large" color="#00d1b2" />
           <Text style={styles.loadingText}>Loading invoices...</Text>
         </View>
       </SafeAreaView>
@@ -81,11 +78,8 @@ const HomeScreen: React.FC = () => {
   if (isError) {
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-        <View style={styles.header}>
-          <Text style={styles.title}>Estable Pay</Text>
-          <Text style={styles.subtitle}>Invoice Management</Text>
-        </View>
+        <StatusBar barStyle="light-content" backgroundColor="#181A20" />
+        <Header onFilterPress={() => setFilterModalVisible(true)} />
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>Error loading invoices</Text>
           <Text style={styles.errorDetails}>{error?.message}</Text>
@@ -96,17 +90,8 @@ const HomeScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-      <View style={styles.header}>
-        <Text style={styles.title}>Estable Pay</Text>
-        <Text style={styles.subtitle}>Invoice Management</Text>
-      </View>
-      <TouchableOpacity
-        style={styles.filterButton}
-        onPress={() => setFilterModalVisible(true)}
-      >
-        <Text style={styles.filterButtonText}>Filters</Text>
-      </TouchableOpacity>
+      <StatusBar barStyle="light-content" backgroundColor="#181A20" />
+      <Header onFilterPress={() => setFilterModalVisible(true)} />
       <FlatList
         data={allInvoices}
         renderItem={renderInvoice}
@@ -119,7 +104,7 @@ const HomeScreen: React.FC = () => {
         ListFooterComponent={
           hasNextPage ? (
             <View style={styles.loadingMore}>
-              <ActivityIndicator size="small" color="#007AFF" />
+              <ActivityIndicator size="small" color="#00d1b2" />
               <Text style={styles.loadingMoreText}>Loading more...</Text>
             </View>
           ) : null
@@ -140,45 +125,18 @@ const HomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
-  },
-  header: {
-    padding: 20,
-    backgroundColor: '#f8f9fa',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#212529',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6c757d',
-  },
-  filterButton: {
-    alignSelf: 'flex-end',
-    margin: 16,
-    backgroundColor: '#007AFF',
-    padding: 10,
-    borderRadius: 8,
-  },
-  filterButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    backgroundColor: '#181A20',
   },
   listContainer: {
     padding: 16,
   },
   invoiceItem: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#23242b',
     padding: 16,
     marginBottom: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#e9ecef',
+    borderColor: '#23242b',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -191,28 +149,28 @@ const styles = StyleSheet.create({
   invoiceId: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#212529',
+    color: '#fff',
     marginBottom: 4,
   },
   invoiceStatus: {
     fontSize: 14,
-    color: '#6c757d',
+    color: '#00d1b2',
     marginBottom: 4,
   },
   invoiceAmount: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#28a745',
+    color: '#00d1b2',
     marginBottom: 4,
   },
   invoiceCustomer: {
     fontSize: 14,
-    color: '#495057',
+    color: '#fff',
     marginBottom: 4,
   },
   invoicePayment: {
     fontSize: 14,
-    color: '#6c757d',
+    color: '#fff',
   },
   loadingContainer: {
     flex: 1,
