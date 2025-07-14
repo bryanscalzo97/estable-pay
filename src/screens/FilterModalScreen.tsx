@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Modal,
   View,
   Text,
   TouchableOpacity,
@@ -10,25 +9,36 @@ import {
   ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../../App';
 
 const STATUS_OPTIONS = ['CREATED', 'PENDING', 'COMPLETED', 'EXPIRED'];
 const CRYPTO_OPTIONS = ['USDT-TRX', 'USDT-ETH', 'ETH', 'TRX'];
 
-type FilterModalProps = {
-  visible: boolean;
-  onClose: () => void;
-  onApply: (filters: { status: string[]; crypto: string[] }) => void;
-  initialStatus?: string[];
-  initialCrypto?: string[];
+type FilterModalScreenNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'FilterModal'
+>;
+type FilterModalScreenRouteProp = RouteProp<RootStackParamList, 'FilterModal'>;
+
+type OnApplyType = (filters: { status: string[]; crypto: string[] }) => void;
+
+type FilterModalParams = {
+  status?: string[];
+  crypto?: string[];
+  onApply?: OnApplyType;
 };
 
-export const FilterModal: React.FC<FilterModalProps> = ({
-  visible,
-  onClose,
-  onApply,
-  initialStatus = STATUS_OPTIONS,
-  initialCrypto = CRYPTO_OPTIONS,
-}) => {
+export default function FilterModalScreen() {
+  const navigation = useNavigation<FilterModalScreenNavigationProp>();
+  const route = useRoute<FilterModalScreenRouteProp>();
+  const {
+    status: initialStatus = STATUS_OPTIONS,
+    crypto: initialCrypto = CRYPTO_OPTIONS,
+    onApply,
+  } = (route.params as FilterModalParams) || {};
+
   const [selectedStatus, setSelectedStatus] = useState<string[]>(initialStatus);
   const [selectedCrypto, setSelectedCrypto] = useState<string[]>(initialCrypto);
 
@@ -49,8 +59,10 @@ export const FilterModal: React.FC<FilterModalProps> = ({
   };
 
   const handleApply = () => {
-    onApply({ status: selectedStatus, crypto: selectedCrypto });
-    onClose();
+    if (onApply) {
+      onApply({ status: selectedStatus, crypto: selectedCrypto });
+    }
+    navigation.goBack();
   };
 
   const handleClear = () => {
@@ -91,68 +103,59 @@ export const FilterModal: React.FC<FilterModalProps> = ({
   );
 
   return (
-    <Modal visible={visible} animationType="slide" transparent>
-      <SafeAreaView style={styles.overlay}>
-        <View style={styles.modalContainer}>
-          {/* Header */}
-          <View style={styles.header}>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Ionicons name="close" size={24} color="#fff" />
-            </TouchableOpacity>
-            <Text style={styles.title}>Filter Invoices</Text>
-            <TouchableOpacity onPress={handleClear} style={styles.clearButton}>
-              <Text style={styles.clearButtonText}>Clear</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Content (Scrollable) */}
-          <ScrollView
-            style={styles.content}
-            contentContainerStyle={styles.scrollContent}
+    <SafeAreaView style={styles.fullScreen}>
+      <View style={styles.modalContainer}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.closeButton}
           >
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Status</Text>
-              <View style={styles.optionsContainer}>
-                {STATUS_OPTIONS.map((item) => (
-                  <View key={item}>{renderStatusItem({ item })}</View>
-                ))}
-              </View>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Crypto</Text>
-              <View style={styles.optionsContainer}>
-                {CRYPTO_OPTIONS.map((item) => (
-                  <View key={item}>{renderCryptoItem({ item })}</View>
-                ))}
-              </View>
-            </View>
-          </ScrollView>
-
-          {/* Footer */}
-          <View style={styles.footer}>
-            <TouchableOpacity style={styles.applyButton} onPress={handleApply}>
-              <Text style={styles.applyButtonText}>Apply Filters</Text>
-            </TouchableOpacity>
-          </View>
+            <Ionicons name="close" size={24} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.title}>Filter Invoices</Text>
+          <TouchableOpacity onPress={handleClear} style={styles.clearButton}>
+            <Text style={styles.clearButtonText}>Clear</Text>
+          </TouchableOpacity>
         </View>
-      </SafeAreaView>
-    </Modal>
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Status</Text>
+            <View style={styles.optionsContainer}>
+              {STATUS_OPTIONS.map((item) => (
+                <View key={item}>{renderStatusItem({ item })}</View>
+              ))}
+            </View>
+          </View>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Crypto</Text>
+            <View style={styles.optionsContainer}>
+              {CRYPTO_OPTIONS.map((item) => (
+                <View key={item}>{renderCryptoItem({ item })}</View>
+              ))}
+            </View>
+          </View>
+        </ScrollView>
+        <View style={styles.footer}>
+          <TouchableOpacity style={styles.applyButton} onPress={handleApply}>
+            <Text style={styles.applyButtonText}>Apply Filters</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  overlay: {
+  fullScreen: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
+    backgroundColor: '#181A20',
   },
   modalContainer: {
+    flex: 1,
     backgroundColor: '#181A20',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    minHeight: '70%',
-    maxHeight: '90%',
   },
   header: {
     flexDirection: 'row',
@@ -185,7 +188,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 20,
     paddingVertical: 24,
-    maxHeight: 350,
   },
   scrollContent: {
     paddingBottom: 16,

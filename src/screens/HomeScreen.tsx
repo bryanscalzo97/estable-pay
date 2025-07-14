@@ -10,14 +10,22 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useGetInvoicesInfinite } from '../api/invoicesApi';
-import { FilterModal } from '../components/FilterModal';
 import { Header } from '../components/Header';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../../App';
 
 const STATUS_OPTIONS = ['CREATED', 'PENDING', 'COMPLETED', 'EXPIRED'];
 const CRYPTO_OPTIONS = ['USDT-TRX', 'USDT-ETH', 'ETH', 'TRX'];
 
+type HomeScreenNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'Home'
+>;
+
 const HomeScreen: React.FC = () => {
-  const [filterModalVisible, setFilterModalVisible] = React.useState(false);
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+
   const [filters, setFilters] = React.useState<{
     status: string[];
     crypto: string[];
@@ -65,11 +73,20 @@ const HomeScreen: React.FC = () => {
     }
   };
 
+  const openFilterModal = () => {
+    navigation.navigate('FilterModal', {
+      status: filters.status,
+      crypto: filters.crypto,
+      onApply: (newFilters: { status: string[]; crypto: string[] }) =>
+        setFilters(newFilters),
+    } as any);
+  };
+
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor="#181A20" />
-        <Header onFilterPress={() => setFilterModalVisible(true)} />
+        <Header onFilterPress={openFilterModal} />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#00d1b2" />
           <Text style={styles.loadingText}>Loading invoices...</Text>
@@ -82,7 +99,7 @@ const HomeScreen: React.FC = () => {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor="#181A20" />
-        <Header onFilterPress={() => setFilterModalVisible(true)} />
+        <Header onFilterPress={openFilterModal} />
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>Error loading invoices</Text>
           <Text style={styles.errorDetails}>{error?.message}</Text>
@@ -94,7 +111,7 @@ const HomeScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#181A20" />
-      <Header onFilterPress={() => setFilterModalVisible(true)} />
+      <Header onFilterPress={openFilterModal} />
       <FlatList
         data={allInvoices}
         renderItem={renderInvoice}
@@ -113,13 +130,6 @@ const HomeScreen: React.FC = () => {
           ) : null
         }
         contentContainerStyle={styles.listContainer}
-      />
-      <FilterModal
-        visible={filterModalVisible}
-        onClose={() => setFilterModalVisible(false)}
-        onApply={(newFilters) => setFilters(newFilters)}
-        initialStatus={filters.status}
-        initialCrypto={filters.crypto}
       />
     </SafeAreaView>
   );
