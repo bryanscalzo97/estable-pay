@@ -5,10 +5,10 @@ import {
   StyleSheet,
   SafeAreaView,
   StatusBar,
-  FlatList,
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import { Header } from '../components/Header';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -89,7 +89,7 @@ const HomeScreen: React.FC = () => {
           </Text>
         </View>
       ) : (
-        <FlatList<Invoice>
+        <FlashList<Invoice>
           data={invoices}
           renderItem={({ item }) => <InvoiceCard invoice={item} />}
           keyExtractor={(item) => item.id}
@@ -99,8 +99,8 @@ const HomeScreen: React.FC = () => {
             <RefreshControl
               refreshing={isFetching}
               onRefresh={refetch}
-              colors={['#00d1b2']} // Android
-              tintColor="#00d1b2" // iOS
+              colors={['#00d1b2']}
+              tintColor="#00d1b2"
             />
           }
           ListFooterComponent={
@@ -111,6 +111,7 @@ const HomeScreen: React.FC = () => {
             ) : null
           }
           contentContainerStyle={styles.listContainer}
+          estimatedItemSize={156}
         />
       )}
     </SafeAreaView>
