@@ -23,6 +23,7 @@ type HomeScreenNavigationProp = NativeStackNavigationProp<
 
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const [refreshing, setRefreshing] = React.useState(false);
 
   const {
     invoices,
@@ -40,6 +41,15 @@ const HomeScreen: React.FC = () => {
   const handleLoadMore = () => {
     if (hasNextPage && !isFetching) {
       fetchNextPage();
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -97,8 +107,8 @@ const HomeScreen: React.FC = () => {
           onEndReachedThreshold={0.1}
           refreshControl={
             <RefreshControl
-              refreshing={isFetching}
-              onRefresh={refetch}
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
               colors={['#00d1b2']}
               tintColor="#00d1b2"
             />
