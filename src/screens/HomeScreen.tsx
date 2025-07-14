@@ -51,21 +51,68 @@ const HomeScreen: React.FC = () => {
 
   const allInvoices = data?.pages.flatMap((page) => page.invoices) ?? [];
 
-  const renderInvoice = ({ item }: { item: any }) => (
-    <View style={styles.invoiceItem}>
-      <Text style={styles.invoiceId}>ID: {item.id}</Text>
-      <Text style={styles.invoiceStatus}>Status: {item.status}</Text>
-      <Text style={styles.invoiceAmount}>
-        Amount: {item.amount} {item.currency}
-      </Text>
-      <Text style={styles.invoiceCustomer}>
-        Customer: {item.customerInfo.fullName}
-      </Text>
-      <Text style={styles.invoicePayment}>
-        Payment: {item.payment.amount} {item.payment.currency}
-      </Text>
-    </View>
-  );
+  const renderInvoice = ({ item }: { item: any }) => {
+    let statusColor = '#6c757d';
+    let statusIcon = null;
+    if (item.status === 'COMPLETED') {
+      statusColor = '#00d1b2';
+      statusIcon = (
+        <Text style={{ color: statusColor, fontSize: 16, marginRight: 4 }}>
+          ✔
+        </Text>
+      );
+    } else if (item.status === 'EXPIRED') {
+      statusColor = '#dc3545';
+      statusIcon = (
+        <Text style={{ color: statusColor, fontSize: 16, marginRight: 4 }}>
+          ⏱
+        </Text>
+      );
+    } else if (item.status === 'PENDING') {
+      statusColor = '#ffc107';
+      statusIcon = (
+        <Text style={{ color: statusColor, fontSize: 16, marginRight: 4 }}>
+          ⏳
+        </Text>
+      );
+    } else if (item.status === 'CREATED') {
+      statusColor = '#6c757d';
+      statusIcon = (
+        <Text style={{ color: statusColor, fontSize: 16, marginRight: 4 }}>
+          •
+        </Text>
+      );
+    }
+    // Show only the last 4 digits of the order ID for better readability
+    const shortId = String(item.id).slice(-4);
+    return (
+      <View style={styles.invoiceItem}>
+        <View style={styles.invoiceRow}>
+          <Text style={styles.invoiceLabel}>Order ID</Text>
+          <Text style={styles.invoiceValue}>{shortId}</Text>
+        </View>
+        <View style={styles.invoiceRow}>
+          <Text style={styles.invoiceLabel}>Amount</Text>
+          <Text style={styles.invoiceValue}>
+            {item.amount} {item.currency}
+          </Text>
+        </View>
+        <View style={styles.invoiceRow}>
+          <Text style={styles.invoiceLabel}>Customer</Text>
+          <Text style={styles.invoiceValue}>{item.customerInfo.fullName}</Text>
+        </View>
+        <View style={styles.invoiceRow}>
+          <Text style={styles.invoiceLabel}>Status</Text>
+          <View style={styles.statusRow}>
+            {statusIcon}
+            <Text style={[styles.statusText, { color: statusColor }]}>
+              {item.status.charAt(0) + item.status.slice(1).toLowerCase()}
+            </Text>
+          </View>
+        </View>
+      </View>
+    );
+  };
 
   const handleLoadMore = () => {
     if (hasNextPage && !isFetching) {
@@ -153,9 +200,9 @@ const styles = StyleSheet.create({
   },
   invoiceItem: {
     backgroundColor: '#23242b',
-    padding: 16,
-    marginBottom: 12,
-    borderRadius: 8,
+    padding: 20,
+    marginBottom: 18,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: '#23242b',
     shadowColor: '#000',
@@ -164,34 +211,34 @@ const styles = StyleSheet.create({
       height: 2,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowRadius: 6,
+    elevation: 4,
   },
-  invoiceId: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 4,
+  invoiceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
   },
-  invoiceStatus: {
-    fontSize: 14,
-    color: '#00d1b2',
-    marginBottom: 4,
-  },
-  invoiceAmount: {
-    fontSize: 16,
+  invoiceLabel: {
+    color: '#b0b3b8',
     fontWeight: '600',
-    color: '#00d1b2',
-    marginBottom: 4,
+    fontSize: 15,
+    letterSpacing: 0.2,
   },
-  invoiceCustomer: {
-    fontSize: 14,
+  invoiceValue: {
     color: '#fff',
-    marginBottom: 4,
+    fontWeight: '500',
+    fontSize: 15,
   },
-  invoicePayment: {
-    fontSize: 14,
-    color: '#fff',
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  statusText: {
+    fontWeight: '700',
+    fontSize: 15,
+    marginLeft: 2,
   },
   loadingContainer: {
     flex: 1,
