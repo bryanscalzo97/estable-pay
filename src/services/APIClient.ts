@@ -9,6 +9,8 @@ const createAxiosInstance = (baseURL: string) => {
       'Content-Type': 'application/json',
     },
     auth: {
+      // TODO: These credentials should be moved to environment variables
+      // For this technical challenge, credentials are hardcoded for simplicity
       username: 'WelComeToEst',
       password: 'GudLuck@2025',
     },
