@@ -112,25 +112,33 @@ const HomeScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#181A20" />
       <Header onFilterPress={openFilterModal} />
-      <FlatList
-        data={allInvoices}
-        renderItem={renderInvoice}
-        keyExtractor={(item) => item.id}
-        onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.1}
-        refreshControl={
-          <RefreshControl refreshing={isFetching} onRefresh={refetch} />
-        }
-        ListFooterComponent={
-          hasNextPage ? (
-            <View style={styles.loadingMore}>
-              <ActivityIndicator size="small" color="#00d1b2" />
-              <Text style={styles.loadingMoreText}>Loading more...</Text>
-            </View>
-          ) : null
-        }
-        contentContainerStyle={styles.listContainer}
-      />
+      {allInvoices.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>
+            No invoices found. Try adjusting your filters or check back later.
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={allInvoices}
+          renderItem={renderInvoice}
+          keyExtractor={(item) => item.id}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.1}
+          refreshControl={
+            <RefreshControl refreshing={isFetching} onRefresh={refetch} />
+          }
+          ListFooterComponent={
+            hasNextPage ? (
+              <View style={styles.loadingMore}>
+                <ActivityIndicator size="small" color="#00d1b2" />
+                <Text style={styles.loadingMoreText}>Loading more...</Text>
+              </View>
+            ) : null
+          }
+          contentContainerStyle={styles.listContainer}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -220,6 +228,17 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 14,
     color: '#6c757d',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  emptyText: {
+    fontSize: 18,
+    color: '#6c757d',
+    textAlign: 'center',
   },
 });
 
