@@ -96,13 +96,17 @@ const HomeScreen: React.FC = () => {
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.1}
           refreshControl={
-            <RefreshControl refreshing={isFetching} onRefresh={refetch} />
+            <RefreshControl
+              refreshing={isFetching}
+              onRefresh={refetch}
+              colors={['#00d1b2']} // Android
+              tintColor="#00d1b2" // iOS
+            />
           }
           ListFooterComponent={
             hasNextPage ? (
               <View style={styles.loadingMore}>
                 <ActivityIndicator size="small" color="#00d1b2" />
-                <Text style={styles.loadingMoreText}>Loading more...</Text>
               </View>
             ) : null
           }
@@ -151,11 +155,6 @@ const styles = StyleSheet.create({
   loadingMore: {
     padding: 16,
     alignItems: 'center',
-  },
-  loadingMoreText: {
-    marginTop: 8,
-    fontSize: 14,
-    color: '#6c757d',
   },
   emptyContainer: {
     flex: 1,
