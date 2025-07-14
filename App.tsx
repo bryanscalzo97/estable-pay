@@ -7,8 +7,12 @@ import HomeScreen from './src/screens/HomeScreen';
 import FilterModalScreen from './src/screens/FilterModalScreen';
 
 export type RootStackParamList = {
-  Home: undefined | { filters?: { status: string[]; crypto: string[] } };
-  FilterModal: { status: string[]; crypto: string[] } | undefined;
+  Home: undefined;
+  FilterModal: {
+    status: string[];
+    crypto: string[];
+    onApply: (filters: { status: string[]; crypto: string[] }) => void;
+  };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

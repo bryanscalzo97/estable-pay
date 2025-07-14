@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
-  Pressable,
   SafeAreaView,
   ScrollView,
 } from 'react-native';
@@ -12,9 +11,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
-
-const STATUS_OPTIONS = ['CREATED', 'PENDING', 'COMPLETED', 'EXPIRED'];
-const CRYPTO_OPTIONS = ['USDT-TRX', 'USDT-ETH', 'ETH', 'TRX'];
+import {
+  useFilterModalState,
+  STATUS_OPTIONS,
+  CRYPTO_OPTIONS,
+} from '../hooks/useFilterModalState';
+import { FilterOptionList } from '../components/FilterOptionList';
 
 type FilterModalScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -39,24 +41,13 @@ export default function FilterModalScreen() {
     onApply,
   } = (route.params as FilterModalParams) || {};
 
-  const [selectedStatus, setSelectedStatus] = useState<string[]>(initialStatus);
-  const [selectedCrypto, setSelectedCrypto] = useState<string[]>(initialCrypto);
-
-  const toggleStatus = (status: string) => {
-    setSelectedStatus((prev) =>
-      prev.includes(status)
-        ? prev.filter((s) => s !== status)
-        : [...prev, status]
-    );
-  };
-
-  const toggleCrypto = (crypto: string) => {
-    setSelectedCrypto((prev) =>
-      prev.includes(crypto)
-        ? prev.filter((c) => c !== crypto)
-        : [...prev, crypto]
-    );
-  };
+  const {
+    selectedStatus,
+    selectedCrypto,
+    toggleStatus,
+    toggleCrypto,
+    handleClear,
+  } = useFilterModalState(initialStatus, initialCrypto);
 
   const handleApply = () => {
     if (onApply) {
@@ -64,43 +55,6 @@ export default function FilterModalScreen() {
     }
     navigation.goBack();
   };
-
-  const handleClear = () => {
-    setSelectedStatus([]);
-    setSelectedCrypto([]);
-  };
-
-  const renderStatusItem = ({ item }: { item: string }) => (
-    <Pressable style={styles.optionRow} onPress={() => toggleStatus(item)}>
-      <View
-        style={[
-          styles.checkbox,
-          selectedStatus.includes(item) && styles.checkboxSelected,
-        ]}
-      >
-        {selectedStatus.includes(item) && (
-          <Ionicons name="checkmark" size={14} color="#fff" />
-        )}
-      </View>
-      <Text style={styles.optionText}>{item}</Text>
-    </Pressable>
-  );
-
-  const renderCryptoItem = ({ item }: { item: string }) => (
-    <Pressable style={styles.optionRow} onPress={() => toggleCrypto(item)}>
-      <View
-        style={[
-          styles.checkbox,
-          selectedCrypto.includes(item) && styles.checkboxSelected,
-        ]}
-      >
-        {selectedCrypto.includes(item) && (
-          <Ionicons name="checkmark" size={14} color="#fff" />
-        )}
-      </View>
-      <Text style={styles.optionText}>{item}</Text>
-    </Pressable>
-  );
 
   return (
     <SafeAreaView style={styles.fullScreen}>
@@ -121,22 +75,18 @@ export default function FilterModalScreen() {
           style={styles.content}
           contentContainerStyle={styles.scrollContent}
         >
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Status</Text>
-            <View style={styles.optionsContainer}>
-              {STATUS_OPTIONS.map((item) => (
-                <View key={item}>{renderStatusItem({ item })}</View>
-              ))}
-            </View>
-          </View>
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Crypto</Text>
-            <View style={styles.optionsContainer}>
-              {CRYPTO_OPTIONS.map((item) => (
-                <View key={item}>{renderCryptoItem({ item })}</View>
-              ))}
-            </View>
-          </View>
+          <FilterOptionList
+            options={STATUS_OPTIONS}
+            selected={selectedStatus}
+            onToggle={toggleStatus}
+            label="Status"
+          />
+          <FilterOptionList
+            options={CRYPTO_OPTIONS}
+            selected={selectedCrypto}
+            onToggle={toggleCrypto}
+            label="Crypto"
+          />
         </ScrollView>
         <View style={styles.footer}>
           <TouchableOpacity style={styles.applyButton} onPress={handleApply}>
@@ -191,44 +141,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 16,
-  },
-  section: {
-    marginBottom: 32,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-    marginBottom: 16,
-  },
-  optionsContainer: {
-    gap: 12,
-  },
-  optionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 4,
-  },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderWidth: 2,
-    borderColor: '#23242b',
-    borderRadius: 6,
-    marginRight: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#23242b',
-  },
-  checkboxSelected: {
-    backgroundColor: '#00d1b2',
-    borderColor: '#00d1b2',
-  },
-  optionText: {
-    fontSize: 16,
-    color: '#fff',
-    fontWeight: '500',
   },
   footer: {
     paddingHorizontal: 20,

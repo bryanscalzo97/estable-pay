@@ -9,14 +9,12 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
-import { useGetInvoicesInfinite } from '../api/invoicesApi';
 import { Header } from '../components/Header';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../App';
-
-const STATUS_OPTIONS = ['CREATED', 'PENDING', 'COMPLETED', 'EXPIRED'];
-const CRYPTO_OPTIONS = ['USDT-TRX', 'USDT-ETH', 'ETH', 'TRX'];
+import { useInvoices, Invoice } from '../hooks/useInvoices';
+import { InvoiceCard } from '../components/InvoiceCard';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -26,16 +24,8 @@ type HomeScreenNavigationProp = NativeStackNavigationProp<
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
-  const [filters, setFilters] = React.useState<{
-    status: string[];
-    crypto: string[];
-  }>({
-    status: STATUS_OPTIONS,
-    crypto: CRYPTO_OPTIONS,
-  });
-
   const {
-    data,
+    invoices,
     fetchNextPage,
     hasNextPage,
     isFetching,
@@ -43,76 +33,9 @@ const HomeScreen: React.FC = () => {
     isError,
     error,
     refetch,
-  } = useGetInvoicesInfinite({
-    pageSize: 5,
-    status: filters.status,
-    crypto: filters.crypto,
-  });
-
-  const allInvoices = data?.pages.flatMap((page) => page.invoices) ?? [];
-
-  const renderInvoice = ({ item }: { item: any }) => {
-    let statusColor = '#6c757d';
-    let statusIcon = null;
-    if (item.status === 'COMPLETED') {
-      statusColor = '#00d1b2';
-      statusIcon = (
-        <Text style={{ color: statusColor, fontSize: 16, marginRight: 4 }}>
-          ✔
-        </Text>
-      );
-    } else if (item.status === 'EXPIRED') {
-      statusColor = '#dc3545';
-      statusIcon = (
-        <Text style={{ color: statusColor, fontSize: 16, marginRight: 4 }}>
-          ⏱
-        </Text>
-      );
-    } else if (item.status === 'PENDING') {
-      statusColor = '#ffc107';
-      statusIcon = (
-        <Text style={{ color: statusColor, fontSize: 16, marginRight: 4 }}>
-          ⏳
-        </Text>
-      );
-    } else if (item.status === 'CREATED') {
-      statusColor = '#6c757d';
-      statusIcon = (
-        <Text style={{ color: statusColor, fontSize: 16, marginRight: 4 }}>
-          •
-        </Text>
-      );
-    }
-    // Show only the last 4 digits of the order ID for better readability
-    const shortId = String(item.id).slice(-4);
-    return (
-      <View style={styles.invoiceItem}>
-        <View style={styles.invoiceRow}>
-          <Text style={styles.invoiceLabel}>Order ID</Text>
-          <Text style={styles.invoiceValue}>{shortId}</Text>
-        </View>
-        <View style={styles.invoiceRow}>
-          <Text style={styles.invoiceLabel}>Amount</Text>
-          <Text style={styles.invoiceValue}>
-            {item.amount} {item.currency}
-          </Text>
-        </View>
-        <View style={styles.invoiceRow}>
-          <Text style={styles.invoiceLabel}>Customer</Text>
-          <Text style={styles.invoiceValue}>{item.customerInfo.fullName}</Text>
-        </View>
-        <View style={styles.invoiceRow}>
-          <Text style={styles.invoiceLabel}>Status</Text>
-          <View style={styles.statusRow}>
-            {statusIcon}
-            <Text style={[styles.statusText, { color: statusColor }]}>
-              {item.status.charAt(0) + item.status.slice(1).toLowerCase()}
-            </Text>
-          </View>
-        </View>
-      </View>
-    );
-  };
+    filters,
+    setFilters,
+  } = useInvoices();
 
   const handleLoadMore = () => {
     if (hasNextPage && !isFetching) {
@@ -126,7 +49,7 @@ const HomeScreen: React.FC = () => {
       crypto: filters.crypto,
       onApply: (newFilters: { status: string[]; crypto: string[] }) =>
         setFilters(newFilters),
-    } as any);
+    });
   };
 
   if (isLoading) {
@@ -159,16 +82,16 @@ const HomeScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#181A20" />
       <Header onFilterPress={openFilterModal} />
-      {allInvoices.length === 0 ? (
+      {invoices.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>
             No invoices found. Try adjusting your filters or check back later.
           </Text>
         </View>
       ) : (
-        <FlatList
-          data={allInvoices}
-          renderItem={renderInvoice}
+        <FlatList<Invoice>
+          data={invoices}
+          renderItem={({ item }) => <InvoiceCard invoice={item} />}
           keyExtractor={(item) => item.id}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.1}
@@ -197,48 +120,6 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: 16,
-  },
-  invoiceItem: {
-    backgroundColor: '#23242b',
-    padding: 20,
-    marginBottom: 18,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#23242b',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-  invoiceRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  invoiceLabel: {
-    color: '#b0b3b8',
-    fontWeight: '600',
-    fontSize: 15,
-    letterSpacing: 0.2,
-  },
-  invoiceValue: {
-    color: '#fff',
-    fontWeight: '500',
-    fontSize: 15,
-  },
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statusText: {
-    fontWeight: '700',
-    fontSize: 15,
-    marginLeft: 2,
   },
   loadingContainer: {
     flex: 1,
