@@ -1,5 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import {
+  getInvoiceStatusColor,
+  getInvoiceStatusIcon,
+  getInvoiceStatusLabel,
+} from '../utils/invoiceStatus';
 
 type Invoice = {
   id: string;
@@ -16,38 +21,9 @@ type InvoiceCardProps = {
 };
 
 export const InvoiceCard: React.FC<InvoiceCardProps> = ({ invoice }) => {
-  let statusColor = '#6c757d';
-  let statusIcon = null;
-
-  if (invoice.status === 'COMPLETED') {
-    statusColor = '#00d1b2';
-    statusIcon = (
-      <Text style={{ color: statusColor, fontSize: 16, marginRight: 4 }}>
-        ✔
-      </Text>
-    );
-  } else if (invoice.status === 'EXPIRED') {
-    statusColor = '#dc3545';
-    statusIcon = (
-      <Text style={{ color: statusColor, fontSize: 16, marginRight: 4 }}>
-        ⏱
-      </Text>
-    );
-  } else if (invoice.status === 'PENDING') {
-    statusColor = '#ffc107';
-    statusIcon = (
-      <Text style={{ color: statusColor, fontSize: 16, marginRight: 4 }}>
-        ⏳
-      </Text>
-    );
-  } else if (invoice.status === 'CREATED') {
-    statusColor = '#6c757d';
-    statusIcon = (
-      <Text style={{ color: statusColor, fontSize: 16, marginRight: 4 }}>
-        •
-      </Text>
-    );
-  }
+  const statusColor = getInvoiceStatusColor(invoice.status);
+  const statusIcon = getInvoiceStatusIcon(invoice.status, statusColor);
+  const statusLabel = getInvoiceStatusLabel(invoice.status);
   // Show only the last 4 digits of the order ID for better readability
   const shortId = String(invoice.id).slice(-4);
 
@@ -72,7 +48,7 @@ export const InvoiceCard: React.FC<InvoiceCardProps> = ({ invoice }) => {
         <View style={styles.statusRow}>
           {statusIcon}
           <Text style={[styles.statusText, { color: statusColor }]}>
-            {invoice.status.charAt(0) + invoice.status.slice(1).toLowerCase()}
+            {statusLabel}
           </Text>
         </View>
       </View>
