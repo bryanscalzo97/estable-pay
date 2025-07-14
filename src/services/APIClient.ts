@@ -1,4 +1,4 @@
-export const API_URL = 'https://estable.dev/api/invoices';
+export const API_URL = 'https://estable.dev/api';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 
 const createAxiosInstance = (baseURL: string) => {
@@ -7,6 +7,10 @@ const createAxiosInstance = (baseURL: string) => {
     timeout: 10000,
     headers: {
       'Content-Type': 'application/json',
+    },
+    auth: {
+      username: 'WelComeToEst',
+      password: 'GudLuck@2025',
     },
   });
 
